@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -54,19 +55,23 @@ export default function HomePage() {
               <h1 className="text-2xl font-bold text-indigo-600">SkillSwap</h1>
             </div>
             <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-700 hover:text-indigo-600">
+              <a href="/browse" className="text-gray-700 hover:text-indigo-600">
                 Browse Skills
               </a>
-              <a href="#" className="text-gray-700 hover:text-indigo-600">
+              <a href="#how-it-works" className="text-gray-700 hover:text-indigo-600">
                 How it Works
               </a>
-              <a href="#" className="text-gray-700 hover:text-indigo-600">
+              <a href="#community" className="text-gray-700 hover:text-indigo-600">
                 Community
               </a>
             </nav>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost">Sign In</Button>
-              <Button>Get Started</Button>
+              <Link href="/auth/login">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+              <Link href="/auth/signup">
+                <Button>Get Started</Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -98,12 +103,16 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-lg px-8 py-3">
-              Start Swapping <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-3 bg-transparent">
-              Browse Skills
-            </Button>
+            <Link href="/auth/signup">
+              <Button size="lg" className="text-lg px-8 py-3">
+                Start Swapping <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/browse">
+              <Button size="lg" variant="outline" className="text-lg px-8 py-3 bg-transparent">
+                Browse Skills
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -239,9 +248,11 @@ export default function HomePage() {
           <p className="text-xl text-indigo-100 mb-8">
             Join thousands of learners sharing knowledge and building skills together.
           </p>
-          <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-            Create Your Profile Today
-          </Button>
+          <Link href="/auth/signup">
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
+              Create Your Profile Today
+            </Button>
+          </Link>
         </div>
       </section>
 

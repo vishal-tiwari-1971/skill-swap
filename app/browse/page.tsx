@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -115,15 +116,15 @@ export default function BrowsePage() {
           <div className="flex justify-between items-center h-16">
             <h1 className="text-2xl font-bold text-indigo-600">SkillSwap</h1>
             <nav className="hidden md:flex space-x-8">
-              <a href="/" className="text-gray-700 hover:text-indigo-600">
+              <Link href="/" className="text-gray-700 hover:text-indigo-600">
                 Home
-              </a>
-              <a href="/dashboard" className="text-gray-700 hover:text-indigo-600">
+              </Link>
+              <Link href="/dashboard" className="text-gray-700 hover:text-indigo-600">
                 Dashboard
-              </a>
-              <a href="/browse" className="text-indigo-600 font-medium">
+              </Link>
+              <Link href="/browse" className="text-indigo-600 font-medium">
                 Browse
-              </a>
+              </Link>
             </nav>
             <div className="flex items-center space-x-4">
               <Button variant="ghost">Profile</Button>
