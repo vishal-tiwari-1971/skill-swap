@@ -20,19 +20,38 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Simple login logic with role toggle
-    if (email && password) {
-      const role = isAdmin ? 'admin' : 'user'
-      console.log('Login attempt:', { email, password, role })
-      
-      // Redirect based on selected role
-      if (isAdmin) {
-        window.location.href = '/admin/dashboard'
-      } else {
-        window.location.href = '/dashboard'
-      }
-    } else {
+    if (!email || !password) {
       alert('Please enter both email and password')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // Store user data in localStorage (simple session management)
+        localStorage.setItem('skillswap-user', JSON.stringify(data.user))
+        
+        // Redirect based on role
+        if (data.user.role === 'admin') {
+          window.location.href = '/admin/dashboard'
+        } else {
+          window.location.href = '/dashboard'
+        }
+      } else {
+        alert(data.error || 'Login failed')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      alert('Login failed. Please try again.')
     }
   }
 

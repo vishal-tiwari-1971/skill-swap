@@ -36,10 +36,34 @@ export default function SignupPage() {
       return
     }
     
-    // Simple signup logic
-    console.log("Signup attempt:", formData)
-    alert('Registration successful! Redirecting to dashboard...')
-    window.location.href = '/dashboard'
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          password: formData.password,
+          location: formData.location,
+          availability: formData.availability,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        alert('Registration successful! Redirecting to dashboard...')
+        window.location.href = '/dashboard'
+      } else {
+        alert(data.error || 'Registration failed')
+      }
+    } catch (error) {
+      console.error('Signup error:', error)
+      alert('Registration failed. Please try again.')
+    }
   }
 
   return (

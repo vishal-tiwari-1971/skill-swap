@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,84 +10,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Filter, MapPin, Clock, Star, MessageSquare } from "lucide-react"
 
+interface User {
+  id: string
+  name: string
+  location: string
+  avatar: string
+  skillsOffered: string[]
+  skillsWanted: string[]
+  rating: number
+  completedSwaps: number
+  availability: string
+  isOnline: boolean
+  createdAt: string
+}
+
 export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
-
-  const users = [
-    {
-      id: 1,
-      name: "Sarah Chen",
-      location: "San Francisco, CA",
-      avatar: "/placeholder.svg?height=60&width=60",
-      skillsOffered: ["React", "TypeScript", "UI/UX Design", "Figma"],
-      skillsWanted: ["Python", "Data Science", "Machine Learning"],
-      rating: 4.9,
-      completedSwaps: 15,
-      availability: "Weekends",
-      isOnline: true,
-    },
-    {
-      id: 2,
-      name: "Mike Johnson",
-      location: "New York, NY",
-      avatar: "/placeholder.svg?height=60&width=60",
-      skillsOffered: ["Python", "Machine Learning", "Data Analysis", "SQL"],
-      skillsWanted: ["React", "Frontend Development", "JavaScript"],
-      rating: 4.8,
-      completedSwaps: 22,
-      availability: "Evenings",
-      isOnline: false,
-    },
-    {
-      id: 3,
-      name: "Emily Rodriguez",
-      location: "Austin, TX",
-      avatar: "/placeholder.svg?height=60&width=60",
-      skillsOffered: ["Graphic Design", "Photoshop", "Branding", "Illustration"],
-      skillsWanted: ["Web Development", "JavaScript", "CSS"],
-      rating: 4.7,
-      completedSwaps: 8,
-      availability: "Flexible",
-      isOnline: true,
-    },
-    {
-      id: 4,
-      name: "David Kim",
-      location: "Los Angeles, CA",
-      avatar: "/placeholder.svg?height=60&width=60",
-      skillsOffered: ["Node.js", "Express", "MongoDB", "AWS"],
-      skillsWanted: ["React Native", "Mobile Development", "Swift"],
-      rating: 4.6,
-      completedSwaps: 12,
-      availability: "Weekdays",
-      isOnline: true,
-    },
-    {
-      id: 5,
-      name: "Lisa Wang",
-      location: "Chicago, IL",
-      avatar: "/placeholder.svg?height=60&width=60",
-      skillsOffered: ["Digital Marketing", "SEO", "Content Strategy", "Analytics"],
-      skillsWanted: ["Web Development", "WordPress", "E-commerce"],
-      rating: 4.9,
-      completedSwaps: 18,
-      availability: "Evenings & Weekends",
-      isOnline: false,
-    },
-    {
-      id: 6,
-      name: "James Wilson",
-      location: "Boston, MA",
-      avatar: "/placeholder.svg?height=60&width=60",
-      skillsOffered: ["Photography", "Video Editing", "Adobe Creative Suite"],
-      skillsWanted: ["Web Design", "HTML/CSS", "WordPress"],
-      rating: 4.5,
-      completedSwaps: 6,
-      availability: "Weekends",
-      isOnline: true,
-    },
-  ]
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   const categories = [
     { value: "all", label: "All Skills" },
@@ -98,6 +40,35 @@ export default function BrowsePage() {
     { value: "creative", label: "Creative" },
   ]
 
+  useEffect(() => {
+    fetchUsers()
+  }, [searchQuery, selectedCategory])
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true)
+      const params = new URLSearchParams({
+        search: searchQuery,
+        category: selectedCategory,
+        limit: '50'
+      })
+
+      const response = await fetch(`/api/users/browse?${params}`)
+      const data = await response.json()
+
+      if (response.ok) {
+        setUsers(data.users)
+      } else {
+        setError(data.error || 'Failed to fetch users')
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+      setError('Failed to fetch users')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       searchQuery === "" ||
@@ -107,6 +78,28 @@ export default function BrowsePage() {
 
     return matchesSearch
   })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading users...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={fetchUsers}>Try Again</Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -127,8 +120,19 @@ export default function BrowsePage() {
               </Link>
             </nav>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost">Profile</Button>
-              <Button>Post Skill</Button>
+              <Link href="/dashboard">
+                <Button variant="ghost">Dashboard</Button>
+              </Link>
+              <Link href="/profile">
+                <Button variant="ghost">Profile</Button>
+              </Link>
+              <Link href="/create-swap">
+                <Button>Create Swap</Button>
+              </Link>
+              <Avatar>
+                <AvatarImage src="/placeholder.svg" alt="User" />
+                <AvatarFallback>U</AvatarFallback>
+              </Avatar>
             </div>
           </div>
         </div>
@@ -195,74 +199,65 @@ export default function BrowsePage() {
                         <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                         <AvatarFallback>
                           {user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
+                            ? user.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                            : "U"}
                         </AvatarFallback>
                       </Avatar>
                       {user.isOnline && (
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
                       )}
                     </div>
                     <div>
                       <CardTitle className="text-lg">{user.name}</CardTitle>
                       <div className="flex items-center text-sm text-gray-500">
-                        <MapPin className="h-3 w-3 mr-1" />
+                        <MapPin className="h-4 w-4 mr-1" />
                         {user.location}
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                      <span className="text-sm font-medium">{user.rating}</span>
-                    </div>
-                    <div className="text-xs text-gray-500">{user.completedSwaps} swaps</div>
+                  <div className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                    <span className="text-sm font-medium">{user.rating}</span>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-medium text-green-700 mb-2 text-sm">Offers:</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {user.skillsOffered.slice(0, 3).map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="bg-green-100 text-green-800 text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                    {user.skillsOffered.length > 3 && (
-                      <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">
-                        +{user.skillsOffered.length - 3}
-                      </Badge>
-                    )}
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-green-700 mb-2">Offers:</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {user.skillsOffered.map((skill, index) => (
+                        <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-blue-700 mb-2 text-sm">Wants:</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {user.skillsWanted.slice(0, 3).map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                    {user.skillsWanted.length > 3 && (
-                      <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">
-                        +{user.skillsWanted.length - 3}
-                      </Badge>
-                    )}
+                  <div>
+                    <h4 className="font-medium text-blue-700 mb-2">Wants:</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {user.skillsWanted.map((skill, index) => (
+                        <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center text-sm text-gray-500">
-                  <Clock className="h-4 w-4 mr-1" />
-                  Available: {user.availability}
-                </div>
-                <div className="flex space-x-2">
-                  <Button className="flex-1" size="sm">
-                    <MessageSquare className="h-4 w-4 mr-1" />
-                    Request Swap
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    View Profile
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-1" />
+                      {user.availability}
+                    </div>
+                    <div className="flex items-center">
+                      <MessageSquare className="h-4 w-4 mr-1" />
+                      {user.completedSwaps} swaps
+                    </div>
+                  </div>
+                  <Button className="w-full" size="sm">
+                    Connect
                   </Button>
                 </div>
               </CardContent>
@@ -272,11 +267,8 @@ export default function BrowsePage() {
 
         {filteredUsers.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Search className="h-12 w-12 mx-auto" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
-            <p className="text-gray-500">Try adjusting your search or filters to find what you're looking for.</p>
+            <p className="text-gray-500 text-lg">No users found matching your criteria.</p>
+            <p className="text-gray-400 text-sm mt-2">Try adjusting your search or filters.</p>
           </div>
         )}
       </div>
