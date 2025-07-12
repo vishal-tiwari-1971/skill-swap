@@ -60,11 +60,11 @@ export default function HomePage() {
               <a href="/browse" className="text-gray-700 hover:text-indigo-600">
                 Browse Skills
               </a>
-              <a href="#how-it-works" className="text-gray-700 hover:text-indigo-600">
+              <a href="/how-it-works" className="text-gray-700 hover:text-indigo-600">
                 How it Works
               </a>
-              <a href="#community" className="text-gray-700 hover:text-indigo-600">
-                Community
+              <a href="/success-stories" className="text-gray-700 hover:text-indigo-600">
+                Success Stories
               </a>
             </nav>
             <div className="flex items-center space-x-4">
@@ -228,8 +228,10 @@ export default function HomePage() {
         </div>
       </section>
 
+
       {/* How it Works */}
       <section id="how-it-works" className="py-16 bg-white">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h3 className="text-3xl font-bold text-gray-900 mb-4">How It Works</h3>
