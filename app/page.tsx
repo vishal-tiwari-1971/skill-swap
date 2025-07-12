@@ -58,7 +58,7 @@ export default function HomePage() {
               <a href="/browse" className="text-gray-700 hover:text-indigo-600">
                 Browse Skills
               </a>
-              <a href="#how-it-works" className="text-gray-700 hover:text-indigo-600">
+              <a href="/how-it-works" className="text-gray-700 hover:text-indigo-600">
                 How it Works
               </a>
               <a href="/success-stories" className="text-gray-700 hover:text-indigo-600">
