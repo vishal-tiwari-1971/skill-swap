@@ -1,81 +1,129 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bell, Settings, Plus, MessageSquare, Star, Clock, CheckCircle, XCircle } from "lucide-react"
+import { Bell, Settings, Plus, MessageSquare, Star, Clock, CheckCircle, XCircle, Edit } from "lucide-react"
+
+interface UserProfile {
+  name: string
+  location: string
+  avatar: string
+  skillsOffered: string[]
+  skillsWanted: string[]
+  rating: number
+  completedSwaps: number
+  availability: string
+}
+
+interface SwapRequest {
+  id: string
+  type: 'incoming' | 'outgoing'
+  user: string
+  userAvatar: string
+  skillOffered: string
+  skillWanted: string
+  status: string
+  date: string
+}
+
+interface Activity {
+  id: string
+  type: string
+  message: string
+  date: string
+}
+
+interface DashboardData {
+  userProfile: UserProfile
+  swapRequests: SwapRequest[]
+  recentActivity: Activity[]
+  stats: {
+    activeRequests: number
+    completedSwaps: number
+    averageRating: number
+  }
+}
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview")
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  const userProfile = {
-    name: "Alex Thompson",
-    location: "Seattle, WA",
-    avatar: "/placeholder.svg?height=80&width=80",
-    skillsOffered: ["JavaScript", "React", "Node.js", "MongoDB"],
-    skillsWanted: ["Python", "Machine Learning", "Data Science"],
-    rating: 4.8,
-    completedSwaps: 12,
-    availability: "Weekends & Evenings",
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      
+      // Get user from localStorage (simple session management)
+      const userData = localStorage.getItem('skillswap-user')
+      if (!userData) {
+        setError('Please login to view dashboard')
+        return
+      }
+
+      const user = JSON.parse(userData)
+      
+      const response = await fetch(`/api/users/dashboard?userId=${user.id}`)
+      const data = await response.json()
+
+      if (response.ok) {
+        setDashboardData(data)
+      } else {
+        setError(data.error || 'Failed to fetch dashboard data')
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+      setError('Failed to fetch dashboard data')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const swapRequests = [
-    {
-      id: 1,
-      type: "incoming",
-      user: "Sarah Chen",
-      userAvatar: "/placeholder.svg?height=40&width=40",
-      skillOffered: "Python",
-      skillWanted: "React",
-      status: "pending",
-      date: "2 hours ago",
-    },
-    {
-      id: 2,
-      type: "outgoing",
-      user: "Mike Johnson",
-      userAvatar: "/placeholder.svg?height=40&width=40",
-      skillOffered: "Data Science",
-      skillWanted: "JavaScript",
-      status: "accepted",
-      date: "1 day ago",
-    },
-    {
-      id: 3,
-      type: "incoming",
-      user: "Emily Rodriguez",
-      userAvatar: "/placeholder.svg?height=40&width=40",
-      skillOffered: "UI/UX Design",
-      skillWanted: "Node.js",
-      status: "pending",
-      date: "3 days ago",
-    },
-  ]
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: "swap_completed",
-      message: "Completed swap with John Doe - React for Python",
-      date: "2 days ago",
-    },
-    {
-      id: 2,
-      type: "rating_received",
-      message: "Received 5-star rating from Jane Smith",
-      date: "1 week ago",
-    },
-    {
-      id: 3,
-      type: "new_request",
-      message: "New swap request from Mike Wilson",
-      date: "1 week ago",
-    },
-  ]
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={fetchDashboardData}>Try Again</Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!dashboardData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">No dashboard data available</p>
+          <Link href="/auth/login">
+            <Button>Login</Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const { userProfile, swapRequests, recentActivity, stats } = dashboardData
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,15 +133,25 @@ export default function Dashboard() {
           <div className="flex justify-between items-center h-16">
             <h1 className="text-2xl font-bold text-indigo-600">SkillSwap</h1>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon">
-                <Bell className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
+              <Link href="/browse">
+                <Button variant="ghost">Browse</Button>
+              </Link>
+              <Link href="/profile">
+                <Button variant="ghost">Profile</Button>
+              </Link>
+              <Link href="/create-swap">
+                <Button>Create Swap</Button>
+              </Link>
               <Avatar>
                 <AvatarImage src={userProfile.avatar || "/placeholder.svg"} alt={userProfile.name} />
-                <AvatarFallback>AT</AvatarFallback>
+                <AvatarFallback>
+                  {userProfile.name
+                    ? userProfile.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                    : "U"}
+                </AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -108,7 +166,14 @@ export default function Dashboard() {
               <CardHeader className="text-center">
                 <Avatar className="w-20 h-20 mx-auto mb-4">
                   <AvatarImage src={userProfile.avatar || "/placeholder.svg"} alt={userProfile.name} />
-                  <AvatarFallback>AT</AvatarFallback>
+                  <AvatarFallback>
+                    {userProfile.name
+                      ? userProfile.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                      : "U"}
+                  </AvatarFallback>
                 </Avatar>
                 <CardTitle>{userProfile.name}</CardTitle>
                 <CardDescription>{userProfile.location}</CardDescription>
@@ -143,10 +208,20 @@ export default function Dashboard() {
                   <Clock className="h-4 w-4 mr-1" />
                   {userProfile.availability}
                 </div>
-                <Button className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Edit Profile
-                </Button>
+                <div className="space-y-2">
+                  <Link href="/profile">
+                    <Button className="w-full" variant="outline">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  </Link>
+                  <Link href="/create-swap">
+                    <Button className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Swap
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -169,7 +244,7 @@ export default function Dashboard() {
                         <MessageSquare className="h-8 w-8 text-blue-600" />
                         <div className="ml-4">
                           <p className="text-sm font-medium text-gray-600">Active Requests</p>
-                          <p className="text-2xl font-bold">3</p>
+                          <p className="text-2xl font-bold">{stats.activeRequests}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -180,7 +255,7 @@ export default function Dashboard() {
                         <CheckCircle className="h-8 w-8 text-green-600" />
                         <div className="ml-4">
                           <p className="text-sm font-medium text-gray-600">Completed Swaps</p>
-                          <p className="text-2xl font-bold">{userProfile.completedSwaps}</p>
+                          <p className="text-2xl font-bold">{stats.completedSwaps}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -191,56 +266,26 @@ export default function Dashboard() {
                         <Star className="h-8 w-8 text-yellow-600" />
                         <div className="ml-4">
                           <p className="text-sm font-medium text-gray-600">Average Rating</p>
-                          <p className="text-2xl font-bold">{userProfile.rating}</p>
+                          <p className="text-2xl font-bold">{stats.averageRating}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Recent Requests */}
+                {/* Recent Activity */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Recent Swap Requests</CardTitle>
-                    <CardDescription>Your latest incoming and outgoing requests</CardDescription>
+                    <CardTitle>Recent Activity</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {swapRequests.slice(0, 3).map((request) => (
-                        <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center space-x-4">
-                            <Avatar>
-                              <AvatarImage src={request.userAvatar || "/placeholder.svg"} alt={request.user} />
-                              <AvatarFallback>
-                                {request.user
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{request.user}</p>
-                              <p className="text-sm text-gray-500">
-                                {request.type === "incoming" ? "Wants to learn" : "Offering"}: {request.skillOffered} →{" "}
-                                {request.skillWanted}
-                              </p>
-                              <p className="text-xs text-gray-400">{request.date}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant={request.status === "pending" ? "secondary" : "default"}>
-                              {request.status}
-                            </Badge>
-                            {request.status === "pending" && request.type === "incoming" && (
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="outline">
-                                  <XCircle className="h-4 w-4" />
-                                </Button>
-                                <Button size="sm">
-                                  <CheckCircle className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            )}
+                      {recentActivity.map((activity) => (
+                        <div key={activity.id} className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-indigo-600 rounded-full mt-2"></div>
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-900">{activity.message}</p>
+                            <p className="text-xs text-gray-500">{activity.date}</p>
                           </div>
                         </div>
                       ))}
@@ -249,18 +294,14 @@ export default function Dashboard() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="requests" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>All Swap Requests</CardTitle>
-                    <CardDescription>Manage your incoming and outgoing swap requests</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {swapRequests.map((request) => (
-                        <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center space-x-4">
-                            <Avatar>
+              <TabsContent value="requests" className="space-y-4">
+                <div className="space-y-4">
+                  {swapRequests.map((request) => (
+                    <Card key={request.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <Avatar className="w-10 h-10">
                               <AvatarImage src={request.userAvatar || "/placeholder.svg"} alt={request.user} />
                               <AvatarFallback>
                                 {request.user
@@ -275,63 +316,55 @@ export default function Dashboard() {
                                 {request.skillOffered} ↔ {request.skillWanted}
                               </p>
                               <p className="text-xs text-gray-400">{request.date}</p>
-                              <Badge variant="outline" className="mt-1">
-                                {request.type === "incoming" ? "Incoming" : "Outgoing"}
-                              </Badge>
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge variant={request.status === "pending" ? "secondary" : "default"}>
+                            <Badge
+                              variant={request.status === 'accepted' ? 'default' : 'secondary'}
+                              className={
+                                request.status === 'accepted'
+                                  ? 'bg-green-100 text-green-800'
+                                  : request.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }
+                            >
                               {request.status}
                             </Badge>
-                            {request.status === "pending" && (
-                              <div className="flex space-x-2">
-                                {request.type === "incoming" ? (
-                                  <>
-                                    <Button size="sm" variant="outline">
-                                      Decline
-                                    </Button>
-                                    <Button size="sm">Accept</Button>
-                                  </>
-                                ) : (
-                                  <Button size="sm" variant="outline">
-                                    Cancel
-                                  </Button>
-                                )}
+                            {request.status === 'pending' && (
+                              <div className="flex space-x-1">
+                                <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                                  <CheckCircle className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
                               </div>
                             )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </TabsContent>
 
-              <TabsContent value="activity" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                    <CardDescription>Your recent actions and updates</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recentActivity.map((activity) => (
-                        <div key={activity.id} className="flex items-start space-x-4 p-4 border rounded-lg">
-                          <div className="flex-shrink-0">
-                            {activity.type === "swap_completed" && <CheckCircle className="h-5 w-5 text-green-500" />}
-                            {activity.type === "rating_received" && <Star className="h-5 w-5 text-yellow-500" />}
-                            {activity.type === "new_request" && <MessageSquare className="h-5 w-5 text-blue-500" />}
-                          </div>
+              <TabsContent value="activity" className="space-y-4">
+                <div className="space-y-4">
+                  {recentActivity.map((activity) => (
+                    <Card key={activity.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-indigo-600 rounded-full mt-2"></div>
                           <div className="flex-1">
-                            <p className="text-sm">{activity.message}</p>
-                            <p className="text-xs text-gray-400 mt-1">{activity.date}</p>
+                            <p className="text-sm text-gray-900">{activity.message}</p>
+                            <p className="text-xs text-gray-500">{activity.date}</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </TabsContent>
             </Tabs>
           </div>
