@@ -7,18 +7,33 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, Shield, User } from "lucide-react"
 import Link from "next/link"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isAdmin, setIsAdmin] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log("Login attempt:", { email, password })
+    
+    // Simple login logic with role toggle
+    if (email && password) {
+      const role = isAdmin ? 'admin' : 'user'
+      console.log('Login attempt:', { email, password, role })
+      
+      // Redirect based on selected role
+      if (isAdmin) {
+        window.location.href = '/admin/dashboard'
+      } else {
+        window.location.href = '/dashboard'
+      }
+    } else {
+      alert('Please enter both email and password')
+    }
   }
 
   return (
@@ -91,6 +106,27 @@ export default function LoginPage() {
                 <Link href="/auth/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-500">
                   Forgot password?
                 </Link>
+              </div>
+
+              {/* Role Toggle */}
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                <div className="flex items-center space-x-3">
+                  {isAdmin ? (
+                    <Shield className="h-5 w-5 text-red-600" />
+                  ) : (
+                    <User className="h-5 w-5 text-blue-600" />
+                  )}
+                  <div>
+                    <h4 className="font-medium">Login as {isAdmin ? 'Admin' : 'User'}</h4>
+                    <p className="text-sm text-gray-500">
+                      {isAdmin ? 'Access admin panel and manage users' : 'Access regular user features'}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={isAdmin}
+                  onCheckedChange={setIsAdmin}
+                />
               </div>
 
               <Button type="submit" className="w-full">

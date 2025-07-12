@@ -28,10 +28,18 @@ export default function SignupPage() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle signup logic here
+    
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match')
+      return
+    }
+    
+    // Simple signup logic
     console.log("Signup attempt:", formData)
+    alert('Registration successful! Redirecting to dashboard...')
+    window.location.href = '/dashboard'
   }
 
   return (
