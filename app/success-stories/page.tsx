@@ -216,7 +216,7 @@ export default function SuccessStoriesPage() {
               <Link href="/browse" className="text-gray-700 hover:text-indigo-600">
                 Browse Skills
               </Link>
-              <Link href="/#how-it-works" className="text-gray-700 hover:text-indigo-600">
+              <Link href="/how-it-works" className="text-gray-700 hover:text-indigo-600">
                 How it Works
               </Link>
               <Link href="/success-stories" className="text-indigo-600 font-medium">
