@@ -43,7 +43,7 @@ A peer-to-peer application where users can:
 
 1. **Clone the repository**
    ```bash
-   git clone <https://github.com/vishal-tiwari-1971/skill-swap.git>
+   git clone https://github.com/vishal-tiwari-1971/skill-swap.git
    cd skill-swap
    ```
 
