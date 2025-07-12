@@ -1,0 +1,324 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Search, Users, ArrowRight, Star, MapPin, Clock } from "lucide-react"
+
+export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const featuredUsers = [
+    {
+      id: 1,
+      name: "Sarah Chen",
+      location: "San Francisco, CA",
+      avatar: "/placeholder.svg?height=40&width=40",
+      skillsOffered: ["React", "TypeScript", "UI/UX Design"],
+      skillsWanted: ["Python", "Data Science"],
+      rating: 4.9,
+      availability: "Weekends",
+    },
+    {
+      id: 2,
+      name: "Mike Johnson",
+      location: "New York, NY",
+      avatar: "/placeholder.svg?height=40&width=40",
+      skillsOffered: ["Python", "Machine Learning", "Data Analysis"],
+      skillsWanted: ["React", "Frontend Development"],
+      rating: 4.8,
+      availability: "Evenings",
+    },
+    {
+      id: 3,
+      name: "Emily Rodriguez",
+      location: "Austin, TX",
+      avatar: "/placeholder.svg?height=40&width=40",
+      skillsOffered: ["Graphic Design", "Photoshop", "Branding"],
+      skillsWanted: ["Web Development", "JavaScript"],
+      rating: 4.7,
+      availability: "Flexible",
+    },
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-indigo-600">SkillSwap</h1>
+            </div>
+            <nav className="hidden md:flex space-x-8">
+              <a href="#" className="text-gray-700 hover:text-indigo-600">
+                Browse Skills
+              </a>
+              <a href="#" className="text-gray-700 hover:text-indigo-600">
+                How it Works
+              </a>
+              <a href="#" className="text-gray-700 hover:text-indigo-600">
+                Community
+              </a>
+            </nav>
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost">Sign In</Button>
+              <Button>Get Started</Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            Trade Skills, <span className="text-indigo-600">Build Community</span>
+          </h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Connect with others to exchange knowledge and skills. Learn something new while sharing what you know best.
+          </p>
+
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                type="text"
+                placeholder="Search for skills like 'Photoshop', 'Guitar', 'Cooking'..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-3 text-lg"
+              />
+              <Button className="absolute right-2 top-1/2 transform -translate-y-1/2">Search</Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="text-lg px-8 py-3">
+              Start Swapping <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-3 bg-transparent">
+              Browse Skills
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-4xl font-bold text-indigo-600 mb-2">2,500+</div>
+              <div className="text-gray-600">Active Members</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-indigo-600 mb-2">10,000+</div>
+              <div className="text-gray-600">Skills Exchanged</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-indigo-600 mb-2">95%</div>
+              <div className="text-gray-600">Satisfaction Rate</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Members */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">Featured Members</h3>
+            <p className="text-gray-600">Connect with skilled individuals in our community</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredUsers.map((user) => (
+              <Card key={user.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center space-x-4">
+                    <Avatar>
+                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                      <AvatarFallback>
+                        {user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">{user.name}</CardTitle>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {user.location}
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                      <span className="text-sm font-medium">{user.rating}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium text-green-700 mb-2">Offers:</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {user.skillsOffered.map((skill, index) => (
+                          <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-blue-700 mb-2">Wants:</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {user.skillsWanted.map((skill, index) => (
+                          <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Clock className="h-4 w-4 mr-1" />
+                      Available: {user.availability}
+                    </div>
+                    <Button className="w-full">Request Swap</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">How It Works</h3>
+            <p className="text-gray-600">Get started in three simple steps</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-indigo-600" />
+              </div>
+              <h4 className="text-xl font-semibold mb-2">Create Your Profile</h4>
+              <p className="text-gray-600">List your skills and what you'd like to learn</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Search className="h-8 w-8 text-indigo-600" />
+              </div>
+              <h4 className="text-xl font-semibold mb-2">Find Matches</h4>
+              <p className="text-gray-600">Browse and connect with people who have complementary skills</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <ArrowRight className="h-8 w-8 text-indigo-600" />
+              </div>
+              <h4 className="text-xl font-semibold mb-2">Start Swapping</h4>
+              <p className="text-gray-600">Exchange knowledge and build lasting connections</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-indigo-600">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h3 className="text-3xl font-bold text-white mb-4">Ready to Start Learning?</h3>
+          <p className="text-xl text-indigo-100 mb-8">
+            Join thousands of learners sharing knowledge and building skills together.
+          </p>
+          <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
+            Create Your Profile Today
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h4 className="text-lg font-semibold mb-4">SkillSwap</h4>
+              <p className="text-gray-400">Connecting learners and building communities through skill exchange.</p>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Platform</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Browse Skills
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    How it Works
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Success Stories
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Support</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Community Guidelines
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Contact Us
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Terms of Service
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Cookie Policy
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 SkillSwap. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
